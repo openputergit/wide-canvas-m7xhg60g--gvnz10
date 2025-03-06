@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Question 💝</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .romantic-font {
+            font-family: 'Dancing Script', cursive;
+        }
+        .custom-shadow {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .heart {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .fade-in {
+            animation: fadeIn 2s ease-in;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-pink-100 to-red-100 min-h-screen overflow-hidden">
+    <div id="scene-container"></div>
+    
+    <!-- Initial Screen -->
+    <div id="start-screen" class="fade-in flex flex-col items-center justify-center min-h-screen">
+        <h1 class="romantic-font text-4xl md:text-6xl text-rose-600 mb-8 custom-shadow text-center">For My Dearest 💖</h1>
+        <button id="start-btn" class="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+            Open Your Surprise 🎁
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="hidden">
+        <div class="flex flex-col items-center justify-center min-h-screen p-4">
+            <div class="heart text-6xl md:text-8xl text-red-500 mb-8">
+                <i class="bi bi-heart-fill"></i>
+            </div>
+            <h2 id="question" class="romantic-font text-3xl md:text-5xl text-rose-600 mb-6 text-center custom-shadow">
+                Will You Be Mine Forever? 🌹
+            </h2>
+            <div class="flex gap-4">
+                <button id="yes-btn" class="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition hover:scale-105">
+                    Yes, I Will! 💝
+                </button>
+                <button id="no-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition hover:scale-105">
+                    No 💔
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, flowers = [];
+        const startBtn = document.getElementById('start-btn');
+        const startScreen = document.getElementById('start-screen');
+        const mainContent = document.getElementById('main-content');
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const question = document.getElementById('question');
+        let audio;
+
+        const noMessages = [
+            "Are you sure? Think again! 🤔",
+            "Please reconsider... 🥺",
+            "You're breaking my heart! 💔",
+            "Maybe take another moment? 😢",
+            "Don't do this to me! 😭",
+            "One more chance? 🙏",
+            "My heart can't take it! 💘"
+        ];
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('scene-container').appendChild(renderer.domElement);
+            
+            camera.position.z = 5;
+
+            // Create more varied flowers
+            for(let i = 0; i < 30; i++) {
+                if(i % 3 === 0) {
+                    createRose();
+                } else if(i % 3 === 1) {
+                    createTulip();
+                } else {
+                    createDaisy();
+                }
+            }
+
+            animate();
+        }
+
+        function createRose() {
+            const geometry = new THREE.TorusGeometry(0.3, 0.1, 16, 100);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xff1493
+            });
+            createFlower(geometry, material);
+        }
+
+        function createTulip() {
+            const geometry = new THREE.ConeGeometry(0.2, 0.4, 32);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xff69b4
+            });
+            createFlower(geometry, material);
+        }
+
+        function createDaisy() {
+            const geometry = new THREE.CircleGeometry(0.2, 8);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xffc0cb
+            });
+            createFlower(geometry, material);
+        }
+
+        function createFlower(geometry, material) {
+            const flower = new THREE.Mesh(geometry, material);
+            
+            flower.position.x = (Math.random() - 0.5) * 10;
+            flower.position.y = (Math.random() - 0.5) * 10;
+            flower.position.z = (Math.random() - 0.5) * 10;
+            
+            flowers.push({
+                mesh: flower,
+                rotationSpeed: Math.random() * 0.02,
+                floatSpeed: Math.random() * 0.01
+            });
+            scene.add(flower);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            flowers.forEach(flower => {
+                flower.mesh.rotation.x += flower.rotationSpeed;
+                flower.mesh.rotation.y += flower.rotationSpeed;
+                flower.mesh.position.y += Math.sin(Date.now() * flower.floatSpeed) * 0.01;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        startBtn.addEventListener('click', () => {
+            startScreen.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            mainContent.classList.add('fade-in');
+            init();
+            
+            // Play romantic background music
+            audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+            audio.loop = true;
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio autoplay blocked"));
+        });
+
+        yesBtn.addEventListener('click', () => {
+            const hearts = '❤️💖💝💕💗';
+            mainContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-screen p-4 fade-in">
+                    <h1 class="romantic-font text-4xl md:text-6xl text-rose-600 mb-8 text-center custom-shadow">
+                        You've Made Me The Happiest Person Alive! ${hearts}
+                    </h1>
+                    <div class="text-8xl bounce">💑</div>
+                </div>
+            `;
+        });
+
+        let noButtonClicks = 0;
+        noBtn.addEventListener('click', () => {
+            noButtonClicks++;
+            question.textContent = noMessages[Math.min(noButtonClicks - 1, noMessages.length - 1)];
+            
+            if(noButtonClicks > 2) {
+                const maxX = window.innerWidth - noBtn.offsetWidth;
+                const maxY = window.innerHeight - noBtn.offsetHeight;
+                noBtn.style.position = 'absolute';
+                noBtn.style.left = Math.random() * maxX + 'px';
+                noBtn.style.top = Math.random() * maxY + 'px';
+                
+                // Make the Yes button bigger
+                yesBtn.classList.add('scale-110');
+                yesBtn.style.padding = `${1 + noButtonClicks/2}rem ${2 + noButtonClicks/2}rem`;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if(renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
